@@ -46,7 +46,7 @@ class Whatsapp(object):
         chrom_services = Service(cls.CHROME_PATH)
         return webdriver.Chrome(service=chrom_services, options=options)
         
-    def print_qr(self):
+    def login(self):
         self._browswer.get(self.LOGIN_PAGE)
         qr_html_elements = find_div_by_testid(self._browswer, 'qrcode')
         was_qr_printed = False
@@ -63,6 +63,7 @@ class Whatsapp(object):
             was_qr_printed = True
             #TODO -> change with ""
             time.sleep(10)
+            input("press enter after scanning the QR")
             
 
     def _open_shopping_conversation(self):

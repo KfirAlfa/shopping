@@ -19,7 +19,7 @@ class Message(object):
         self._was_read = False
     
 class MsgDB(object):
-    def write(self, msg: Message):
+    def write_if_not_exist(self, msg: Message):
        raise NotImplementedError()
     def get_unread_messages(self, uid) -> Message:
        raise NotImplementedError()
@@ -50,7 +50,7 @@ class PickleMsgDB(MsgDB):
         self.messages[msgID]._was_read = True
         self._dump_messages_state_to_db()
 
-    def write(self, msg: Message):
+    def write_if_not_exist(self, msg: Message):
         #only write to DB if message does not exits
         if msg.id not in self.messages:
             self.messages[msg.id] = msg
