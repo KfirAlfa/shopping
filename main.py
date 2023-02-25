@@ -27,17 +27,24 @@ class whastappBringConnector():
         messaegs = self.WA.get_messages()
         for msg in messaegs:
             self.db.write_if_not_exist(msg)
+        
+    def send_to_bring(self, msg):
+        print (msg.lines)
+
+    def handle_old_messags(self):
+        unread_messages = self.db.get_unread_messages()
+        for msg_id, msg  in unread_messages.items():
+            self.send_to_bring(msg)
 
     def bind_messages(self):
-        # uf, this is not good. how can I see just the changes of the DOM? :thinking
-        while True:
-            time.sleep(1)
-            unread_messages = self.db.get_unread_messages()
+        for unread_messages in self.WA.bind_for_new_messages:
             for msg_id, msg  in unread_messages.items():
-                print (msg.lines)
+                self.db.write_if_not_exist(msg)
+                self.send_to_bring(msg)
 
 def main():
     connector = whastappBringConnector()
+    connector.handle_old_messags()
     connector.bind_messages()
 
 if __name__ == '__main__':
