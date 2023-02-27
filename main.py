@@ -37,7 +37,7 @@ class whastappBringConnector():
             self.send_to_bring(msg)
 
     def bind_messages(self):
-        for unread_messages in self.WA.bind_for_new_messages:
+        for unread_messages in self.WA.bind_for_new_messages():
             for msg_id, msg  in unread_messages.items():
                 self.db.write_if_not_exist(msg)
                 self.send_to_bring(msg)

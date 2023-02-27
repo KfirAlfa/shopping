@@ -21,7 +21,7 @@ def find_div_that_contain_testid(element: WebElement, testid):
 
 def find_all_div_by_testid(element: WebElement, testid):
     try:
-        eles = WebDriverWait(element, 10).until(
+        return WebDriverWait(element, 10).until(
             EC.presence_of_all_elements_located((
                 By.XPATH,
                 "//div[@data-testid='%s']" % testid))
@@ -29,13 +29,23 @@ def find_all_div_by_testid(element: WebElement, testid):
     except TimeoutException:
         # try again, but don't wait forever.
         print("timeout, try again to find %s " % testid)
-        eles = WebDriverWait(element, 100).until(
+        return WebDriverWait(element, 100).until(
             EC.presence_of_all_elements_located((
                 By.XPATH,
                 "//div[@data-testid='%s']" % testid))
         )
-    finally:
-         return eles
+
+def is_testid_exist(element, testid) -> bool:
+    try:
+        WebDriverWait(element, 0).until(
+        EC.presence_of_all_elements_located((
+            By.XPATH,
+            "//div[@data-testid='%s']" % testid))
+        )
+    except TimeoutError:
+        #testid does not exist
+        return False
+    return True
 
 def find_div_by_testid(element: WebElement, testid):
     try:
@@ -69,7 +79,7 @@ class Whatsapp(object):
     @classmethod
     def _init_selenuim_driver(cls) -> webdriver.Chrome:
         options =  webdriver.ChromeOptions()
-        options.headless = True
+        #options.headless = True
         #options.add_argument("user-agent='%s'" % cls.VALID_USER_AGENT)
         #TODO -> fix this...
         options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36")
@@ -112,6 +122,9 @@ class Whatsapp(object):
 
         #need to search for it
         if shopping_list_id is None:
+            qr_pic = io.BytesIO(self._browswer.screenshot_as_png)
+            qr = Image.open(qr_pic)
+            qr.show()
             self._browswer.close()
             raise Exception("can't find shopping_list_id")
         shopping_conv = conversations[shopping_list_id]
@@ -124,7 +137,8 @@ class Whatsapp(object):
         for msg in messages_web_elements:
             # if we see profile picture, it means that the first line of the message is the name
             # empty list means no profile pic
-            is_msg_with_profile_pic = not(bool(find_div_by_testid(msg, "group-chat-profile-picture")))
+            is_msg_with_profile_pic = not(is_testid_exist(msg, "group-chat-profile-picture"))
+            print("DBG", msg.text, is_msg_with_profile_pic)
             messages.append(Message(msg, is_msg_with_profile_pic))
         return messages
     
